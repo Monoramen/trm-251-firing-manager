@@ -1,0 +1,144 @@
+services:
+  backend:
+    build:
+      context: ./bot-hub-backend 
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+
+      - APP_PORT=${APP_PORT}                     # Из .env
+    env_file:
+      - ./.env  # Загружаем .env в окружение
+    networks:
+      - bot-network
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./bot-web-ui # Укажите путь к репозиторию фронтенда
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:9090  # Пример переменной окружения для API
+    networks:
+      - bot-network
+    depends_on:
+      - backend   
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - database
+    networks:
+      - bot-network
+
+
+  database:
+    image: postgres
+    ports:
+      - "5001:5432"
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-personal-bot-hub:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env
+    networks:
+      - bot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ngrok:
+  #   image: ngrok/ngrok:latest
+  #   restart: always
+  #   command:
+  #     - "start"
+  #     - "backend"
+  #     - "--authtoken"
+  #     - "${NGROK_AUTHTOKEN}"
+  #     - "--config"
+  #     - "/etc/ngrok.yml"
+  #   volumes:
+  #     - ./ngrok.yml:/etc/ngrok.yml
+  #   env_file:
+  #     - ./.env  # Загружаем .env для NGROK_AUTHTOKEN
+  #   networks:
+  #     - bot-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - bot-network
+    depends_on:
+      - backend
+      - database
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin  # Логин администратора
+      GF_SECURITY_ADMIN_PASSWORD: admin  # Пароль администратора
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
+      GF_DATABASE_TYPE: postgres  # Тип базы данных
+      GF_DATABASE_HOST: database:5432  # Хост и порт базы данных
+      GF_DATABASE_NAME: ${POSTGRES_DB}  # Имя базы данных
+      GF_DATABASE_USER: postgres  # Пользователь базы данных
+      GF_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}  # Пароль базы данных
+      GF_DATABASE_SSL_MODE: disable  # Отключение SSL
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - bot-network
+    depends_on:
+      - database  # Убедитесь, что Grafana зависит от базы данных
+      - prometheus
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - bot-network
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - /var/log:/var/log
+    networks:
+      - bot-network
+    depends_on:
+      - loki
+volumes:
+  postgres-personal-bot-hub:
+    name: postgres-personal-bot-hub
+    external: true
+  grafana-storage:
+    name: grafana-storage
+    
+
+networks:
+  bot-network:
+    name: bot-network
+    external: true
