@@ -1,6 +1,3 @@
-[submodule "bot-hub-backend"]
-	path = bot-hub-backend
-	url = https://github.com/Monoramen/bot-hub-backend
 [submodule "bot-web-ui"]
 	path = bot-web-ui
 	url = https://github.com/Monoramen/bot-web-ui
