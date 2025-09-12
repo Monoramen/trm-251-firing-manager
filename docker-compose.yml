@@ -133,7 +133,6 @@ services:
 volumes:
   postgres-personal-bot-hub:
     name: postgres-personal-bot-hub
-    external: true
   grafana-storage:
     name: grafana-storage
     
