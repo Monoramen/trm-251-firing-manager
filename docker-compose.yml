@@ -141,4 +141,4 @@ volumes:
 networks:
   bot-network:
     name: bot-network
-    external: true
+    driver: bridge
