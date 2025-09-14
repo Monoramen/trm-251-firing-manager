@@ -23,8 +23,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:9090/api
     env_file:
-      - ./.env  # Загружаем .env в окружение
+      - ./.env
     networks:
       - bot-network
     depends_on:
