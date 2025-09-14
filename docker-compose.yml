@@ -78,7 +78,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - "3011:3011"
     environment:
       GF_SECURITY_ADMIN_USER: admin  # Логин администратора
       GF_SECURITY_ADMIN_PASSWORD: admin  # Пароль администратора
