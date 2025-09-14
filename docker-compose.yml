@@ -15,7 +15,13 @@ services:
       - database
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
-
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9090"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      
   frontend:
     build:
       context: ./bot-web-ui # Укажите путь к репозиторию фронтенда
