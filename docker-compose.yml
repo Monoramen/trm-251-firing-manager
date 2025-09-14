@@ -6,7 +6,6 @@ services:
     ports:
       - "9090:9090"
     environment:
-
       - APP_PORT=${APP_PORT}                     # Из .env
     env_file:
       - ./.env  # Загружаем .env в окружение
@@ -23,10 +22,13 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:9090  # Пример переменной окружения для API
+    env_file:
+      - ./.env  # Загружаем .env в окружение
     networks:
       - bot-network
     depends_on:
-      - backend   
+      backend:
+        condition: service_healthy
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
@@ -60,23 +62,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # ngrok:
-  #   image: ngrok/ngrok:latest
-  #   restart: always
-  #   command:
-  #     - "start"
-  #     - "backend"
-  #     - "--authtoken"
-  #     - "${NGROK_AUTHTOKEN}"
-  #     - "--config"
-  #     - "/etc/ngrok.yml"
-  #   volumes:
-  #     - ./ngrok.yml:/etc/ngrok.yml
-  #   env_file:
-  #     - ./.env  # Загружаем .env для NGROK_AUTHTOKEN
-  #   networks:
-  #     - bot-network
 
   prometheus:
     image: prom/prometheus:latest
