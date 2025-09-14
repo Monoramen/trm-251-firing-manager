@@ -21,8 +21,6 @@ services:
     build:
       context: ./bot-web-ui # Укажите путь к репозиторию фронтенда
       dockerfile: Dockerfile
-      args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} # <-- Add this line
     ports:
       - "3000:3000"
     env_file:
