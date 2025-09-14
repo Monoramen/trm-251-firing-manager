@@ -13,6 +13,8 @@ services:
       - bot-network
     depends_on:
       - database
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
 
   frontend:
     build:
@@ -20,8 +22,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:9090  # Пример переменной окружения для API
     env_file:
       - ./.env  # Загружаем .env в окружение
     networks:
