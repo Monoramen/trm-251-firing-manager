@@ -6,13 +6,15 @@ services:
     ports:
       - "9090:9090"
     environment:
-      - APP_PORT=${APP_PORT}                     # Из .env
+    - APP_PORT=9090
     env_file:
       - ./.env  # Загружаем .env в окружение
     networks:
       - bot-network
     depends_on:
       - database
+    extra_hosts:                            
+      - "host.docker.internal:host-gateway"
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
   frontend:
