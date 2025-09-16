@@ -17,16 +17,18 @@ services:
       - /dev/ttyUSB0:/dev/ttyUSB0
   frontend:
     build:
-      context: ./bot-web-ui # Укажите путь к репозиторию фронтенда
+      context: ./bot-web-ui
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}   
+      - API_PROXY_URL=http://backend:9090
+      - NEXT_PUBLIC_API_BASE_URL=/api
     env_file:
       - ./.env
     networks:
       - bot-network
+
 
   pgadmin:
     image: dpage/pgadmin4:latest
