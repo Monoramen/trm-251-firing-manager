@@ -129,12 +129,32 @@ services:
       - bot-network
     depends_on:
       - loki
+
+
+
+
+ai-model:
+    build:
+      context: ./ai-model  # Путь к директории с кодом модели
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"  # Откройте порт, если модель будет принимать запросы
+    networks:
+      - bot-network
+    volumes:
+      - ai-model-data:/app/data  # Для сохранения весов модели
+    depends_on:
+      - database  # Модели нужен доступ к данным для обучения
+    env_file:
+      - ./.env
+
 volumes:
   postgres-personal-bot-hub:
     name: postgres-personal-bot-hub
   grafana-storage:
     name: grafana-storage
-    
+  ai-model-data:
+    name: ai-model-data
 
 networks:
   bot-network:
