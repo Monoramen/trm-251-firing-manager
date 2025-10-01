@@ -67,7 +67,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "8080:80"   # ты будешь заходить на http://localhost:8080
+      - "8080:80"   
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -77,58 +77,6 @@ services:
       - bot-network
 
 
-
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9091:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - bot-network
-    depends_on:
-      - backend
-      - database
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3011:3011"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin  # Логин администратора
-      GF_SECURITY_ADMIN_PASSWORD: admin  # Пароль администратора
-      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
-      GF_DATABASE_TYPE: postgres  # Тип базы данных
-      GF_DATABASE_HOST: database:5432  # Хост и порт базы данных
-      GF_DATABASE_NAME: ${POSTGRES_DB}  # Имя базы данных
-      GF_DATABASE_USER: postgres  # Пользователь базы данных
-      GF_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}  # Пароль базы данных
-      GF_DATABASE_SSL_MODE: disable  # Отключение SSL
-    volumes:
-      - grafana-storage:/var/lib/grafana
-    networks:
-      - bot-network
-    depends_on:
-      - database  # Убедитесь, что Grafana зависит от базы данных
-      - prometheus
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./loki-config.yaml:/etc/loki/local-config.yaml
-    networks:
-      - bot-network
-
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - ./promtail-config.yaml:/etc/promtail/config.yml
-      - /var/log:/var/log
-    networks:
-      - bot-network
-    depends_on:
-      - loki
 
 
 volumes:
