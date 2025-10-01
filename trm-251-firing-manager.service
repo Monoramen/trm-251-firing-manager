@@ -1,0 +1,12 @@
+[Unit]
+Description=TRM-251 Firing Manager
+After=network.target
+
+[Service]
+User=your_username
+WorkingDirectory=/home/your_username/trm-251-firing-manager
+ExecStart=/usr/bin/docker compose up
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
